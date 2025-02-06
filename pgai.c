@@ -51,6 +51,8 @@ fetch_data_with_pseudo_column_internal(FunctionCallInfo fcinfo, const char *tabl
     HeapTuple tuple;
     int natts;
     Datum *values;
+    TupleDesc new_tupdesc;
+    bool *nulls;
     
     /* Check if caller supports returning a tuplestore */
     if (rsinfo == NULL)
@@ -67,7 +69,7 @@ fetch_data_with_pseudo_column_internal(FunctionCallInfo fcinfo, const char *tabl
     natts = tupdesc->natts;
 
     /* Create a new tuple descriptor with an additional column for the pseudo column */
-    TupleDesc new_tupdesc = CreateTemplateTupleDesc(natts + 1);
+    new_tupdesc = CreateTemplateTupleDesc(natts + 1);
     for (int i = 0; i < natts; i++)
     {
         TupleDescInitEntry(new_tupdesc, i + 1,
@@ -102,7 +104,7 @@ fetch_data_with_pseudo_column_internal(FunctionCallInfo fcinfo, const char *tabl
 
     /* Allocate memory for values and nulls arrays */
     *values = (Datum *) palloc((natts + 1) * sizeof(Datum));
-    bool *nulls = (bool *) palloc((natts + 1) * sizeof(bool));
+    *nulls = (bool *) palloc((natts + 1) * sizeof(bool));
 
     /* Fetch rows and add to tuplestore */
     while ((tuple = heap_getnext(scan, ForwardScanDirection)) != NULL)
