@@ -49,7 +49,9 @@ fetch_data_with_pseudo_column_internal(FunctionCallInfo fcinfo, const char *tabl
     Snapshot snapshot;
     TableScanDesc scan;
     HeapTuple tuple;
-
+    int natts;
+    Datum *values;
+    
     /* Check if caller supports returning a tuplestore */
     if (rsinfo == NULL)
         return (Datum) 0;
@@ -62,7 +64,7 @@ fetch_data_with_pseudo_column_internal(FunctionCallInfo fcinfo, const char *tabl
     if (get_call_result_type(fcinfo, NULL, &tupdesc) != TYPEFUNC_COMPOSITE)
         elog(ERROR, "[pgai] fetch_data_with_pseudo_column_internal: Return type must be a row type.");
 
-    int natts = tupdesc->natts;
+    natts = tupdesc->natts;
 
     /* Create a new tuple descriptor with an additional column for the pseudo column */
     TupleDesc new_tupdesc = CreateTemplateTupleDesc(natts + 1);
@@ -99,7 +101,7 @@ fetch_data_with_pseudo_column_internal(FunctionCallInfo fcinfo, const char *tabl
     scan = table_beginscan(rel, snapshot, 0, NULL);
 
     /* Allocate memory for values and nulls arrays */
-    Datum *values = (Datum *) palloc((natts + 1) * sizeof(Datum));
+    *values = (Datum *) palloc((natts + 1) * sizeof(Datum));
     bool *nulls = (bool *) palloc((natts + 1) * sizeof(bool));
 
     /* Fetch rows and add to tuplestore */
