@@ -103,8 +103,8 @@ fetch_data_with_pseudo_column_internal(FunctionCallInfo fcinfo, const char *tabl
     scan = table_beginscan(rel, snapshot, 0, NULL);
 
     /* Allocate memory for values and nulls arrays */
-    *values = (Datum *) palloc((natts + 1) * sizeof(Datum));
-    *nulls = (bool *) palloc((natts + 1) * sizeof(bool));
+    values = (Datum *) palloc((natts + 1) * sizeof(Datum));
+    nulls = (bool *) palloc((natts + 1) * sizeof(bool));
 
     /* Fetch rows and add to tuplestore */
     while ((tuple = heap_getnext(scan, ForwardScanDirection)) != NULL)
